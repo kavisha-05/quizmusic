@@ -37,6 +37,14 @@ $stmt = $pdo->query("
 ");
 $questionnaires = $stmt->fetchAll();
 
+// 🧮 Compter le nombre de questions par questionnaire
+$stmt = $pdo->query("
+    SELECT questionnaire_id, COUNT(*) AS nb_questions
+    FROM questions
+    GROUP BY questionnaire_id
+");
+$questionsParTheme = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
 // 📚 CONCEPT : Fonction pour afficher la difficulté
 function afficherDifficulte($niveau) {
     $etoiles = '';
@@ -138,7 +146,11 @@ function afficherDifficulte($niveau) {
                         <span class="text-4xl"><?php echo $quiz['emoji']; ?></span>
                         <!-- 📚 NOTE : On pourrait afficher le nombre de questions depuis la BDD -->
                         <span class="text-sm font-medium bg-white/20 px-2 py-1 rounded-full">
-                            5 questions
+                             <?php
+                                // 🔢 Récupère le nombre de questions pour ce questionnaire
+                                $nb = $questionsParTheme[$quiz['id']] ?? 0;
+                                echo $nb . ' question' . ($nb > 1 ? 's' : '');
+                             ?>
                         </span>
                     </div>
                     <h3 class="text-2xl font-bold mb-2"><?php echo htmlspecialchars($quiz['titre']); ?></h3>
@@ -197,3 +209,4 @@ function afficherDifficulte($niveau) {
 </body>
 
 </html>
+
